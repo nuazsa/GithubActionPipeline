@@ -1,29 +1,23 @@
-name: FTP Deploy
+name: FTP Rsync
 
 on:
   push:
     branches:
-      - main
+      - rsync
   pull_request:
     branches:
-      - main
-
+      - rsync
+      
 jobs:
-  web-deploy:
-    name: 🎉 Deploy
+  deploy:
     runs-on: ubuntu-latest
     steps:
-    - name: 🚚 Get latest code
-      uses: actions/checkout@v4
-    
-    - name: 📂 Sync files
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-      with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        port: ${{ secrets.FTP_PORT }}
-        protocol: ftps
-        exclude: |
-          **/.git*
-          **/.git*/**
+      - uses: actions/checkout@v2
+      - uses: contention/rsync-deployments@v2.0.0
+        with:
+          FLAGS: -avzr --delete
+          EXCLUDES: --exclude .htaccess --exclude /uploads/USER deploybot
+          HOST: nuazsa.my.id
+          LOCALPATH: /
+          REMOTEPATH: ${{ secrets.DEPLOY_REMOTE }}
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
